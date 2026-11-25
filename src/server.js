@@ -3,6 +3,8 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger');
 
 const db = require('./database/database');
 
@@ -17,7 +19,7 @@ const pontosRoutes = require('./routes/pontos');
 const materiaisRoutes = require('./routes/materiais');
 const solicitacoesRoutes = require('./routes/solicitacoes');
 
-// Rota inicial
+// Rota principal
 app.get('/', (req, res) => {
   res.json({
     mensagem: 'Bem-vindo à API EcoColeta!',
@@ -26,13 +28,18 @@ app.get('/', (req, res) => {
   });
 });
 
-// Rotas da aplicação
+// Rotas da API
 app.use('/usuarios', usuariosRoutes);
 app.use('/pontos-coleta', pontosRoutes);
 app.use('/materiais', materiaisRoutes);
 app.use('/solicitacoes', solicitacoesRoutes);
 
-// Documentação será configurada posteriormente
+// Documentação Swagger
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument)
+);
 
 // Tratamento de rotas inexistentes
 app.use((req, res) => {
@@ -41,11 +48,10 @@ app.use((req, res) => {
   });
 });
 
+// Inicialização do servidor
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`EcoColeta API rodando na porta ${PORT}`);
+  console.log(`Swagger: http://localhost:${PORT}/api-docs/`);
 });
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swagger');
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
